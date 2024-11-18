@@ -181,7 +181,7 @@ public class BuddyList implements BuddylandList {
             Buddy buddy = buddiesDataStructure[mid];
 
             if (buddy != null) {
-                char currentInitial = buddy.getFirstName().toLowerCase().charAt(0);
+                char currentInitial = buddy.getLastName().toLowerCase().charAt(0);
                 if (currentInitial == targetInitial) {
                     foundIndex = mid; // Possible match found
                     break;
@@ -207,7 +207,7 @@ public class BuddyList implements BuddylandList {
         // Check left side
         while (left >= 0) {
             Buddy buddy = buddiesDataStructure[left];
-            if (buddy != null && buddy.getFirstName().toLowerCase().startsWith(name.toLowerCase())) {
+            if (buddy != null && buddy.getLastName().toLowerCase().startsWith(name.toLowerCase())) {
                 result.add(0, buddy); // Add to the front to maintain order
             } else {
                 break; // Stop when no longer matching
@@ -218,7 +218,7 @@ public class BuddyList implements BuddylandList {
         // Check right side
         while (right < size + numberOfRemoves) {
             Buddy buddy = buddiesDataStructure[right];
-            if (buddy != null && buddy.getFirstName().toLowerCase().startsWith(name.toLowerCase())) {
+            if (buddy != null && buddy.getLastName().toLowerCase().startsWith(name.toLowerCase())) {
                 result.add(buddy); // Add to the end
             } else {
                 break; // Stop when no longer matching
