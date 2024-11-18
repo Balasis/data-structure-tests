@@ -39,7 +39,7 @@ public class BuddyLandProgram {
         try {
             List<Buddy> someList = friendsOfTheBuddy.searchBuddiesByName(nameOfTheBuddy);
             for(Buddy bud : someList){
-                System.out.println(bud.getFirstName());
+                System.out.println(bud.getUsername());
             }
         } catch (InvalidStringInput e) {
             System.out.println(e.getMessage());

@@ -34,9 +34,16 @@ public class BuddyList implements BuddylandList {
         int insertIndex = -1; // Index to insert the buddy
         //It loops upwords checking if username exists, the insertIndex of the buddy and the closer gap(null) to it
         loopUpwards(gapIndex, insertIndex, buddy);
-        boolean gapsUsed =false;
-        int shiftStart = 0;
-        fallbackIfNoGapsAndEntryFound(gapIndex,insertIndex,gapsUsed,shiftStart);
+
+        // If no insertIndex found, buddy goes at the beginning
+        if (insertIndex == -1) insertIndex = 0;
+        boolean gapsUsed = false;
+        if (gapIndex !=-1){
+            gapsUsed = true;
+        }
+
+        // If no gaps, the range to shift starts from the insertion point
+        int shiftStart = (gapIndex != -1) ? gapIndex : size + numberOfRemoves;
 
         for (int i = shiftStart; i > insertIndex; i--) {
             buddiesDataStructure[i] = buddiesDataStructure[i - 1];
@@ -70,11 +77,7 @@ public class BuddyList implements BuddylandList {
         }
     }
 
-    private void fallbackIfNoGapsAndEntryFound(int gapIndex, int insertIndex ,Boolean gapsUsed,int shiftStart){
-        if (insertIndex == -1) insertIndex = 0;
-        if (gapIndex !=-1)gapsUsed = true;
-        shiftStart = (gapIndex != -1) ? gapIndex : size + numberOfRemoves;
-    }
+
 
 
     @Override
@@ -92,19 +95,144 @@ public class BuddyList implements BuddylandList {
         throw new BuddyNotInTheListException("Buddy not found in the list");
     }
 
-    @Override
+
+//
+//    public List<Buddy> searchBuddiesByName(String name) throws InvalidStringInput {
+//        if (name == null || name.trim().isEmpty()) {
+//            throw new InvalidStringInput("Name cannot be null or empty");
+//        }
+//
+//        List<Buddy> result = new ArrayList<>();
+//        int left = 0;
+//        int right = size + numberOfRemoves - 1;
+//
+//        while (left <= right) {
+//            int mid = left + (right - left) / 2;
+//
+//            // Find the nearest non-null value
+//            mid = findNearestNonNull(mid, left, right);
+//
+//            if (mid == -1) break; // No valid non-null values in range
+//
+//            Buddy currentBuddy = buddiesDataStructure[mid];
+//            int comparison = currentBuddy.getLastName().compareToIgnoreCase(name);
+//
+//            if (comparison == 0 || currentBuddy.getFirstName().equalsIgnoreCase(name)) {
+//                // Add matches and look both sides for duplicates
+//                collectMatches(result, mid, name);
+//                break;
+//            } else if (comparison < 0) {
+//                left = mid + 1;
+//            } else {
+//                right = mid - 1;
+//            }
+//        }
+//
+//        return result;
+//    }
+//
+//    // Helper to find the nearest non-null value
+//    private int findNearestNonNull(int mid, int left, int right) {
+//        int originalMid = mid;
+//        while (mid >= left && buddiesDataStructure[mid] == null) mid--;
+//        if (mid >= left) return mid;
+//
+//        mid = originalMid + 1;
+//        while (mid <= right && buddiesDataStructure[mid] == null) mid++;
+//        return mid <= right ? mid : -1;
+//    }
+//
+//    // Helper to collect matches on both sides of the found buddy
+//    private void collectMatches(List<Buddy> result, int index, String name) {
+//        // Collect left side
+//        for (int i = index; i >= 0 && buddiesDataStructure[i] != null; i--) {
+//            Buddy buddy = buddiesDataStructure[i];
+//            if (buddy.getFirstName().equalsIgnoreCase(name) || buddy.getLastName().equalsIgnoreCase(name)) {
+//                result.add(buddy);
+//            }
+//        }
+//
+//        // Collect right side
+//        for (int i = index + 1; i < buddiesDataStructure.length && buddiesDataStructure[i] != null; i++) {
+//            Buddy buddy = buddiesDataStructure[i];
+//            if (buddy.getFirstName().equalsIgnoreCase(name) || buddy.getLastName().equalsIgnoreCase(name)) {
+//                result.add(buddy);
+//            }
+//        }
+//    }
+
+
+
     public List<Buddy> searchBuddiesByName(String name) throws InvalidStringInput {
-        if (name == null || name.trim().isEmpty()) throw new InvalidStringInput("Name cannot be null or empty");
+        if (name == null || name.trim().isEmpty()) {
+            throw new InvalidStringInput("Name cannot be null or empty");
+        }
 
         List<Buddy> result = new ArrayList<>();
-        for (Buddy buddy : buddiesDataStructure) {
-            if (buddy != null && (buddy.getFirstName().equalsIgnoreCase(name) || buddy.getLastName().equalsIgnoreCase(name))) {
-                result.add(buddy);
+        char targetInitial = name.toLowerCase().charAt(0);
+
+        // Perform binary search to locate the first occurrence
+        int low = 0;
+        int high = size + numberOfRemoves - 1;
+        int foundIndex = -1;
+
+        while (low <= high) {
+            int mid = (low + high) / 2;
+            Buddy buddy = buddiesDataStructure[mid];
+
+            if (buddy != null) {
+                char currentInitial = buddy.getFirstName().toLowerCase().charAt(0);
+                if (currentInitial == targetInitial) {
+                    foundIndex = mid; // Possible match found
+                    break;
+                } else if (currentInitial < targetInitial) {
+                    low = mid + 1;
+                } else {
+                    high = mid - 1;
+                }
+            } else {
+                high--; // Skip nulls
             }
+        }
+
+        // If no match found, return an empty result
+        if (foundIndex == -1) {
+            return result;
+        }
+
+        // Expand outward from the found index
+        int left = foundIndex;
+        int right = foundIndex;
+
+        // Check left side
+        while (left >= 0) {
+            Buddy buddy = buddiesDataStructure[left];
+            if (buddy != null && buddy.getFirstName().toLowerCase().startsWith(name.toLowerCase())) {
+                result.add(0, buddy); // Add to the front to maintain order
+            } else {
+                break; // Stop when no longer matching
+            }
+            left--;
+        }
+
+        // Check right side
+        while (right < size + numberOfRemoves) {
+            Buddy buddy = buddiesDataStructure[right];
+            if (buddy != null && buddy.getFirstName().toLowerCase().startsWith(name.toLowerCase())) {
+                result.add(buddy); // Add to the end
+            } else {
+                break; // Stop when no longer matching
+            }
+            right++;
         }
 
         return result;
     }
+
+
+
+
+
 
     @Override
     public int getNumberOfBuddies() {
