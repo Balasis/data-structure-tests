@@ -15,7 +15,7 @@ public class BuddyLandProgram {
     public void addBuddy(Buddy theBuddyToBeAdded){
         try {
             friendsOfTheBuddy.addBuddy(theBuddyToBeAdded);
-            System.out.println(Arrays.toString(friendsOfTheBuddy.buddiesDataStructure));//open for testing...
+            System.out.println(Arrays.toString(friendsOfTheBuddy.getItRemoveMe()));//open for testing...
         } catch (InvalidBuddyObjectException e) {
             System.out.println(e.getMessage());
         } catch (CannotAddSelfAsBuddyException e) {

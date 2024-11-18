@@ -3,10 +3,10 @@ import java.util.Arrays;
 import java.util.List;
 
 public class BuddyList implements BuddylandList {
-    Buddy owner;
-    Buddy[] buddiesDataStructure;
-    int size;
-    int numberOfRemoves;
+    private Buddy owner;
+    private Buddy[] buddiesDataStructure;
+    private int size;
+    private int numberOfRemoves;
 
     public BuddyList(Buddy owner) {
         this.owner = owner;
@@ -32,48 +32,50 @@ public class BuddyList implements BuddylandList {
 
         int gapIndex = -1; // Track the first gap found
         int insertIndex = -1; // Index to insert the buddy
-
-        // Loop upwards from the bottom
-        for (int i = size + numberOfRemoves - 1; i >= 0; i--) {
-            Buddy currentBuddy = buddiesDataStructure[i];
-
-            if (currentBuddy == null) {
-                if (insertIndex == -1){
-                    gapIndex = i; // Mark the gap
-                    System.out.println(gapIndex);
-                }
-
-            } else if (currentBuddy.getUsername().equals(buddy.getUsername())) {
-                throw new InvalidBuddyObjectException("Buddy with this username already exists");
-            }  else if (insertIndex == -1 && (currentBuddy.getLastName().compareTo(buddy.getLastName()) < 0 ||
-                       currentBuddy.getLastName().compareTo(buddy.getLastName()) == 0)) {
-                System.out.println(insertIndex);
-                insertIndex = i+1; // Found the correct insertion spot
-                System.out.println("Turned to :" + insertIndex);
-            }
-        }
-
-        // If no insertIndex found, buddy goes at the beginning
-        if (insertIndex == -1) insertIndex = 0;
-        boolean gapsUsed = false;
-        if (gapIndex !=-1){
-            gapsUsed = true;
-        }
-        // If no gaps, the range to shift starts from the insertion point
-        int shiftStart = (gapIndex != -1) ? gapIndex : size + numberOfRemoves;
-
+        //It loops upwords checking if username exists, the insertIndex of the buddy and the closer gap(null) to it
+        loopUpwards(gapIndex, insertIndex, buddy);
+        boolean gapsUsed =false;
+        int shiftStart = 0;
+        fallbackIfNoGapsAndEntryFound(gapIndex,insertIndex,gapsUsed,shiftStart);
 
         for (int i = shiftStart; i > insertIndex; i--) {
-
             buddiesDataStructure[i] = buddiesDataStructure[i - 1];
         }
-
         buddiesDataStructure[insertIndex] = buddy;
         size++;
         if (gapsUsed) numberOfRemoves--;
         System.out.println("Number of removes is "+  numberOfRemoves +" and size is " + size);
         return true;
     }
+
+
+
+    private void loopUpwards(int gapIndex, int insertIndex, Buddy buddy) throws InvalidBuddyObjectException {
+        // Loop upwards from the bottom
+        for (int i = size + numberOfRemoves - 1; i >= 0; i--) {
+            Buddy currentBuddy = buddiesDataStructure[i];
+            if (currentBuddy == null) {
+                if (insertIndex == -1){
+                    gapIndex = i; // Mark the gap
+                    System.out.println(gapIndex);
+                }
+            } else if (currentBuddy.getUsername().equals(buddy.getUsername())) {
+                throw new InvalidBuddyObjectException("Buddy with this username already exists");
+            }  else if (insertIndex == -1 && (currentBuddy.getLastName().compareTo(buddy.getLastName()) < 0 ||
+                    currentBuddy.getLastName().compareTo(buddy.getLastName()) == 0)) {
+                System.out.println(insertIndex);
+                insertIndex = i+1; // Found the correct insertion spot
+                System.out.println("Turned to :" + insertIndex);
+            }
+        }
+    }
+
+    private void fallbackIfNoGapsAndEntryFound(int gapIndex, int insertIndex ,Boolean gapsUsed,int shiftStart){
+        if (insertIndex == -1) insertIndex = 0;
+        if (gapIndex !=-1)gapsUsed = true;
+        shiftStart = (gapIndex != -1) ? gapIndex : size + numberOfRemoves;
+    }
+
 
     @Override
     public boolean removeBuddy(Buddy buddy) throws InvalidBuddyObjectException, BuddyNotInTheListException {
@@ -87,7 +89,6 @@ public class BuddyList implements BuddylandList {
                 return true;
             }
         }
-
         throw new BuddyNotInTheListException("Buddy not found in the list");
     }
 
@@ -113,5 +114,9 @@ public class BuddyList implements BuddylandList {
     @Override
     public Buddy getBuddyListOwner() {
         return this.owner;
+    }
+
+    public Buddy[] getItRemoveMe(){
+        return this.buddiesDataStructure;
     }
 }
