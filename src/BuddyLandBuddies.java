@@ -1,6 +1,4 @@
 public interface BuddyLandBuddies {
-    String getFullname();
-    boolean isSelf(BuddyLandBuddies buddyLandBuddies) throws InvalidBuddyObjectException;
     String getUsername();
     String getPassword();
     String getFirstName();
@@ -11,4 +9,7 @@ public interface BuddyLandBuddies {
     boolean setFirstName(String firstname) throws InvalidStringInput;
     boolean setLastName(String lastname) throws InvalidStringInput;
     boolean setEmail(String email) throws InvalidStringInput;
+
+    String getFullname();
+    boolean isSelf(BuddyLandBuddies buddyLandBuddies) throws InvalidBuddyObjectException;
 }
